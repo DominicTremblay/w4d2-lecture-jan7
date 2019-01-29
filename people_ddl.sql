@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS people CASCADE;
+
+CREATE TABLE people (
+  id SERIAL PRIMARY KEY NOT NULL,
+  first_name TEXT,
+  last_name TEXT
+)
