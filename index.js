@@ -1,50 +1,51 @@
 const pg = require('pg');
 
-const config = {
+const options = {
   user: 'labber',
   password: 'labber',
   database: 'people',
 };
 
-const client = new pg.Client(config);
+const client = new pg.Client(options);
 
 const listPeople = (db, cb) => {
   const query = `SELECT * FROM people;`;
 
   db.query(query, (err, res) => {
-    for (const peopleObj of res.rows) {
-      cb(peopleObj);
+    for (const personObj of res.rows) {
+      cb(personObj);
     }
     db.end();
   });
 };
 
-const createPerson = (db, fName, lName) => {
-  const query = `INSERT INTO people (first_name, last_name) VALUES ($1::text, $2::text);`;
+const createNewPerson = (db, firstName, lastName) => {
+  const query = `INSERT INTO people (first_name, last_name) VALUES ($1::text, $2::text)`;
 
-  db.query(query, [fName, lName], (err, res) => {
+  db.query(query, [firstName, lastName], (err, res) => {
     if (err) {
       throw err;
     }
-    console.log(`${res.rowCount} inserted`);
-    db.end();
+
+    console.log(`${res.rowCount} rows have been inserted`);
+    client.end();
   });
 };
 
 client.connect(err => {
-  console.log(`connected to '${client.database}'`);
+  console.log(`Connected to ${client.database}`);
 
-  const [node, path, command, firstName, lastName] = process.argv;
+  const [node, path, command, fName, lName] = process.argv;
 
   if (command === 'C') {
-    createPerson(client, firstName, lastName);
+    createNewPerson(client, fName, lName);
   } else {
-    listPeople(client, personObj =>
+    listPeople(client, personObj => {
       console.log(
         `id: ${personObj.id} - First Name: ${personObj.first_name} Last Name: ${
           personObj.last_name
         }`
-      )
-    );
+      );
+    });
   }
 });
